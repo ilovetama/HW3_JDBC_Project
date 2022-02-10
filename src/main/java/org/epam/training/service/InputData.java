@@ -8,6 +8,8 @@ import org.epam.training.model.User;
 
 public class InputData {
 
+  User user = new User();
+  Account account = new Account();
   UserService userService = new UserService();
   AccountService accountService = new AccountService();
 
@@ -19,81 +21,76 @@ public class InputData {
         2 - Create new account
         3 - Pop up balance
         4 - Withdrawal cash
-        5 - Show my accounts
-        6 - Exit""");
+        5 - Exit""");
     Scanner scanner = new Scanner(System.in);
     return scanner.nextInt();
   }
 
-  public User showMyAccount() {
-    User user = new User();
-    System.out.println("Enter your phone number:");
-    Scanner scanner = new Scanner(System.in);
-    user.setUserId(scanner.nextInt());
-    return user;
-  }
-
   public User createNewUser() {
-    User user = new User();
-    System.out.println("Enter your phone number:");
-    Scanner scanner = new Scanner(System.in);
-    user.setUserId(scanner.nextInt());
+    user.setUserId(getNumber());
     isUserExist(user);
-    System.out.println("Enter user name:");
-    scanner = new Scanner(System.in);
-    user.setName(scanner.next());
-    System.out.println("Enter address:");
-    scanner = new Scanner(System.in);
-    user.setAddress(scanner.next());
+    user.setName(getName());
+    user.setAddress(getAddress());
     return user;
   }
 
   public Account createNewAccount() {
-    Account account = new Account();
-    System.out.println("Enter your phone number:");
-    Scanner scanner = new Scanner(System.in);
-    account.setUserId(scanner.nextInt());
-    System.out.println("Enter currency of your deposit: EUR, USD, BYN");
-    scanner = new Scanner(System.in);
-    account.setCurrency(scanner.next());
+    account.setUserId(getNumber());
+    account.setCurrency(getCurrency());
     isAccountExist(account);
-    System.out.println("Enter the amount you want to deposit:");
-    scanner = new Scanner(System.in);
     account.setBalance(
-        Math.round((scanner.nextDouble()) * (int) Math.pow(10.0, 3)) / Math.pow(10.0, 3));
+        Math.round((getBalance()) * (int) Math.pow(10.0, 3)) / Math.pow(10.0, 3));
     return account;
   }
 
   public Account popUpBalance() {
-    Account account = new Account();
-    System.out.println("Enter your phone number:");
-    Scanner scanner = new Scanner(System.in);
-    account.setUserId(scanner.nextInt());
-    System.out.println("Enter currency of your account: EUR, USD, BYN");
-    scanner = new Scanner(System.in);
-    account.setCurrency(scanner.next());
-    System.out.println("Enter the amount:");
-    scanner = new Scanner(System.in);
+    account.setUserId(getNumber());
+    account.setCurrency(getCurrency());
     account.setBalance(
-        Math.round((scanner.nextDouble()) * (int) Math.pow(10.0, 3)) / Math.pow(10.0, 3));
+        Math.round((getBalance()) * (int) Math.pow(10.0, 3)) / Math.pow(10.0, 3));
     isAmountCorrect(account);
+    isTransactionCorrect(account);
     return account;
   }
 
   public Account withdrawalCash() {
-    Account account = new Account();
+    account.setUserId(getNumber());
+    account.setCurrency(getCurrency());
+    account.setBalance(
+        Math.round((getBalance()) * (int) Math.pow(10.0, 3)) / Math.pow(10.0, 3));
+    isBalanceBelowZero(account);
+    isTransactionCorrect(account);
+    return account;
+  }
+
+  private int getNumber() {
     System.out.println("Enter your phone number:");
     Scanner scanner = new Scanner(System.in);
-    account.setUserId(scanner.nextInt());
-    System.out.println("Enter currency of your account: EUR, USD, BYN");
-    scanner = new Scanner(System.in);
-    account.setCurrency(scanner.next());
-    System.out.println("Enter the amount:");
-    scanner = new Scanner(System.in);
-    account.setBalance(
-        Math.round((scanner.nextDouble()) * (int) Math.pow(10.0, 3)) / Math.pow(10.0, 3));
-    isBalanceBelowZero(account);
-    return account;
+    return scanner.nextInt();
+  }
+
+  private String getName() {
+    System.out.println("Enter your name:");
+    Scanner scanner = new Scanner(System.in);
+    return scanner.next();
+  }
+
+  private String getAddress() {
+    System.out.println("Enter your address:");
+    Scanner scanner = new Scanner(System.in);
+    return scanner.next();
+  }
+
+  private int getBalance() {
+    System.out.println("Enter amount:");
+    Scanner scanner = new Scanner(System.in);
+    return scanner.nextInt();
+  }
+
+  private String getCurrency() {
+    System.out.println("Enter account currency: EUR, USD, BYN");
+    Scanner scanner = new Scanner(System.in);
+    return scanner.next();
   }
 
   private void isUserExist(User user) {
@@ -126,12 +123,10 @@ public class InputData {
     }
   }
 
-  private void isAccountExis(Account account) {
-    if (accountService.checkCurrency(account.getUserId())
-        .contains(account.getCurrency())) {
-      System.out.println("You already have account in " + account.getCurrency());
+  private void isTransactionCorrect(Account account) {
+    if (account.getBalance() > 100000000) {
+      System.out.println("Sorry, transaction size exceeded (The limit is 100`000`000)");
       System.exit(0);
     }
   }
-
 }

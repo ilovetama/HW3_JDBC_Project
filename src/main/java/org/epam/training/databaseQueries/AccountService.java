@@ -9,7 +9,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import org.epam.training.model.Account;
-import org.epam.training.model.User;
 import org.epam.training.service.Constant;
 
 public class AccountService {
@@ -50,24 +49,19 @@ public class AccountService {
     }
   }
 
-  public void withdrawalCash(Account account) {
+  public void withdrawalCash(Account account) throws SQLException {
     try {
-      Class.forName(Constant.JDBC_DRIVER);
-      Connection connection = DriverManager.getConnection(Constant.DATABASE_URL);
-      try {
-        PreparedStatement statement = connection.prepareStatement(
-            "UPDATE ACCOUNTS SET balance = balance - ? WHERE userId = ?"
-                + " AND currency = ?");
-        statement.setDouble(1, account.getBalance());
-        statement.setInt(2, account.getUserId());
-        statement.setString(3, account.getCurrency());
-        statement.executeUpdate();
-        statement.close();
-      } finally {
-        connection.close();
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
+      connection = Constant.getConnection();
+      statement = connection.prepareStatement("UPDATE ACCOUNTS SET"
+          + " balance = balance - ? WHERE userId = ? AND currency = ?");
+      statement.setDouble(1, account.getBalance());
+      statement.setInt(2, account.getUserId());
+      statement.setString(3, account.getCurrency());
+      statement.executeUpdate();
+    } catch (SQLException e) {
+      System.out.println(e.getMessage());
+    } finally {
+      Constant.closeConnection(connection, statement);
     }
   }
 
@@ -81,32 +75,6 @@ public class AccountService {
             "SELECT * FROM ACCOUNTS WHERE currency = " + "'" + account.getCurrency()
                 + "'" + "AND userId = " + "'" + account.getUserId() + "'");
         System.out.println("Your account:");
-        while (resultSet.next()) {
-          String str = "UserID: " + resultSet.getString("userId")
-              + "\nBalance: " + resultSet.getDouble("balance")
-              + "\nCurrency: " + resultSet.getString("currency");
-          System.out.println(str);
-          System.out.println("----------------");
-        }
-        resultSet.close();
-        statement.close();
-      } finally {
-        connection.close();
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
-
-  public void showMyAccount(User user) {
-    try {
-      Class.forName(Constant.JDBC_DRIVER);
-      Connection connection = DriverManager.getConnection(Constant.DATABASE_URL);
-      try {
-        Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery(
-            "SELECT * FROM ACCOUNTS WHERE userId = " + "'" + user.getUserId() + "'");
-        System.out.println("Your accounts:");
         while (resultSet.next()) {
           String str = "UserID: " + resultSet.getString("userId")
               + "\nBalance: " + resultSet.getDouble("balance")
@@ -176,5 +144,4 @@ public class AccountService {
     }
     return (userCurrencyList);
   }
-
 }

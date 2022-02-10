@@ -31,6 +31,7 @@ public class UserService {
       e.printStackTrace();
     }
   }
+
   public ArrayList<String> checkUserId() {
     ArrayList<String> userIdList = new ArrayList<>();
     try {

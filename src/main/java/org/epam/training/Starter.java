@@ -5,7 +5,6 @@ import org.epam.training.databaseQueries.AccountService;
 import org.epam.training.databaseQueries.TransactionService;
 import org.epam.training.databaseQueries.UserService;
 import org.epam.training.model.Account;
-import org.epam.training.model.User;
 import org.epam.training.service.InputData;
 
 public class Starter {
@@ -17,7 +16,6 @@ public class Starter {
     AccountService accountService = new AccountService();
     TransactionService transactionService = new TransactionService();
     Account account;
-    User user;
     int menuOption;
     do {
       menuOption = inputData.inputMenuOptions();
@@ -41,11 +39,7 @@ public class Starter {
           accountService.showCurrentAccount(account);
           transactionService.createWithdrawalTransaction(account);
         }
-        case 5 -> {
-          user = inputData.showMyAccount();
-          accountService.showMyAccount(user);
-        }
-        case 6 -> System.exit(0);
+        case 5 -> System.exit(0);
       }
     } while (true);
   }
