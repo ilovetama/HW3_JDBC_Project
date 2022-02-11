@@ -1,52 +1,48 @@
 package org.epam.training.databaseQueries;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import org.epam.training.model.Account;
-import org.epam.training.service.Constant;
+import org.epam.training.service.ConnectionToDB;
 
 public class TransactionService {
 
-  public void createPopUpTransaction(Account account) {
-    try {
-      Class.forName(Constant.JDBC_DRIVER);
-      Connection connection = DriverManager.getConnection(Constant.DATABASE_URL);
-      try {
-        PreparedStatement statement = connection.prepareStatement(
-            "INSERT INTO TRANSACTIONS (accountId,amount) VALUES"
-                + " ((SELECT accountId FROM ACCOUNTS WHERE currency = ? AND userId = ?),?)");
-        statement.setString(1, account.getCurrency());
-        statement.setInt(2, account.getUserId());
-        statement.setDouble(3, account.getBalance());
-        statement.executeUpdate();
-        statement.close();
-      } finally {
-        connection.close();
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+  private static Connection connection = null;
+  private static PreparedStatement preparedStatement = null;
+
+  private void setPreparedStatement(Account account) throws SQLException {
+    preparedStatement.setString(1, account.getCurrency());
+    preparedStatement.setInt(2, account.getUserId());
+    preparedStatement.setDouble(3, account.getBalance());
+    preparedStatement.executeUpdate();
   }
 
-  public void createWithdrawalTransaction(Account account) {
-    try {
-      Class.forName(Constant.JDBC_DRIVER);
-      Connection connection = DriverManager.getConnection(Constant.DATABASE_URL);
+  public void createPopUpTransaction(Account account) throws SQLException {
       try {
-        PreparedStatement statement = connection.prepareStatement(
+        connection = ConnectionToDB.getConnection();
+        preparedStatement = connection.prepareStatement(
+            "INSERT INTO TRANSACTIONS (accountId,amount) VALUES"
+                + " ((SELECT accountId FROM ACCOUNTS WHERE currency = ? AND userId = ?),?)");
+        setPreparedStatement(account);
+      } catch (SQLException e) {
+        System.out.println(e.getMessage());
+      } finally {
+        ConnectionToDB.closeConnection(connection, preparedStatement);
+      }
+  }
+
+  public void createWithdrawalTransaction(Account account) throws SQLException {
+      try {
+        connection = ConnectionToDB.getConnection();
+        preparedStatement = connection.prepareStatement(
             "INSERT INTO TRANSACTIONS (accountId,amount) VALUES"
                 + " ((SELECT accountId FROM ACCOUNTS WHERE currency = ? AND userId = ?),-?)");
-        statement.setString(1, account.getCurrency());
-        statement.setInt(2, account.getUserId());
-        statement.setDouble(3, account.getBalance());
-        statement.executeUpdate();
-        statement.close();
+        setPreparedStatement(account);
+      } catch (SQLException e) {
+        System.out.println(e.getMessage());
       } finally {
-        connection.close();
+        ConnectionToDB.closeConnection(connection, preparedStatement);
       }
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
   }
 }

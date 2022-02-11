@@ -1,5 +1,6 @@
 package org.epam.training.service;
 
+import java.sql.SQLException;
 import java.util.Scanner;
 import org.epam.training.databaseQueries.AccountService;
 import org.epam.training.databaseQueries.UserService;
@@ -26,7 +27,7 @@ public class InputData {
     return scanner.nextInt();
   }
 
-  public User createNewUser() {
+  public User createNewUser() throws SQLException {
     user.setUserId(getNumber());
     isUserExist(user);
     user.setName(getName());
@@ -34,7 +35,7 @@ public class InputData {
     return user;
   }
 
-  public Account createNewAccount() {
+  public Account createNewAccount() throws SQLException {
     account.setUserId(getNumber());
     account.setCurrency(getCurrency());
     isAccountExist(account);
@@ -43,7 +44,7 @@ public class InputData {
     return account;
   }
 
-  public Account popUpBalance() {
+  public Account popUpBalance() throws SQLException {
     account.setUserId(getNumber());
     account.setCurrency(getCurrency());
     account.setBalance(
@@ -53,7 +54,7 @@ public class InputData {
     return account;
   }
 
-  public Account withdrawalCash() {
+  public Account withdrawalCash() throws SQLException {
     account.setUserId(getNumber());
     account.setCurrency(getCurrency());
     account.setBalance(
@@ -93,14 +94,14 @@ public class InputData {
     return scanner.next();
   }
 
-  private void isUserExist(User user) {
+  private void isUserExist(User user) throws SQLException {
     if (userService.checkUserId().contains(String.valueOf(user.getUserId()))) {
       System.out.println("You already have account");
       System.exit(0);
     }
   }
 
-  private void isAccountExist(Account account) {
+  private void isAccountExist(Account account) throws SQLException {
     if (accountService.checkCurrency(account.getUserId())
         .contains(account.getCurrency())) {
       System.out.println("You already have account in " + account.getCurrency());
@@ -108,7 +109,7 @@ public class InputData {
     }
   }
 
-  private void isAmountCorrect(Account account) {
+  private void isAmountCorrect(Account account) throws SQLException {
     if ((account.getBalance() + accountService.checkBalance(account)
         > 2000000000)) {
       System.out.println("Sorry, account limit is exceeded");
@@ -116,7 +117,7 @@ public class InputData {
     }
   }
 
-  private void isBalanceBelowZero(Account account) {
+  private void isBalanceBelowZero(Account account) throws SQLException {
     if (account.getBalance() > accountService.checkBalance(account)) {
       System.out.println("Sorry, insufficient funds");
       System.exit(0);
